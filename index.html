@@ -1,167 +1,347 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Basic Chatbot</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: Arial, sans-serif;
-      background-color: #f4f4f4;
-    }
-    .container {
-      max-width: 600px;
-      margin: 50px auto;
-      background: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-    h1 {
-      text-align: center;
-      color: #333;
-      margin-bottom: 20px;
-    }
-    label {
-      font-size: 16px;
-      margin-bottom: 10px;
-      display: block;
-    }
-    select {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 20px;
-    }
-    #answer-container {
-      background-color: #e1f5fe;
-      padding: 10px;
-      border-radius: 5px;
-    }
-    #answer {
-      font-size: 16px;
-      color: #333;
-    }
-  </style>
-</head>
-<body>
-  <div class="container">
-    <h1>Admission Chatbot</h1>
-
-    <!-- Category Selection -->
-    <label for="category">Choose a Category:</label>
-    <select id="category" onchange="showQuestions()">
-      <option value="">-- Select a Category --</option>
-      <option value="admission">Admissions</option>
-      <option value="fees">Fee Structure</option>
-      <option value="scholarships">Scholarships</option>
-    </select>
-
-    <!-- Questions Section -->
-    <div id="questions-container" style="display: none;">
-      <label for="questions">Choose a Question:</label>
-      <select id="questions" onchange="showAnswer()">
-        <option value="">-- Select a Question --</option>
-      </select>
-    </div>
-
-    <!-- Answer Section -->
-    <div id="answer-container" style="display: none;">
-      <h3>Answer:</h3>
-      <p id="answer"></p>
-    </div>
-  </div>
-
-  <script>
-    // Function to show questions based on selected category
-    function showQuestions() {
-      const category = document.getElementById("category").value;
-      const questionsContainer = document.getElementById("questions-container");
-      const questionsSelect = document.getElementById("questions");
-
-      // Clear previous questions
-      questionsSelect.innerHTML = '<option value="">-- Select a Question --</option>';
-
-      if (category) {
-        questionsContainer.style.display = "block";
-        let questions = [];
-
-        // Use switch to set relevant questions for each category
-        switch (category) {
-          case "admission":
-            questions = [
-              { value: "admission_process", text: "What is the admission process?" },
-              { value: "eligibility", text: "What are the eligibility criteria?" }
-            ];
-            break;
-          case "fees":
-            questions = [
-              { value: "fee_structure", text: "What is the fee structure?" },
-              { value: "payment_methods", text: "What are the available payment methods?" }
-            ];
-            break;
-          case "scholarships":
-            questions = [
-              { value: "available_scholarships", text: "Are there any scholarships available?" },
-              { value: "eligibility_scholarships", text: "What is the eligibility for scholarships?" }
-            ];
-            break;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Department of Technical Education Chatbot</title>
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2980b9;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+            --white: #ffffff;
+            --error-color: #e74c3c;
         }
 
-        // Add questions to the dropdown
-        questions.forEach((q) => {
-          const option = document.createElement("option");
-          option.value = q.value;
-          option.textContent = q.text;
-          questionsSelect.appendChild(option);
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .chatbot-trigger {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s ease;
+        }
+
+        .chatbot-trigger:hover {
+            transform: scale(1.1);
+        }
+
+        .chatbot-trigger img {
+            width: 40px;
+            height: 40px;
+        }
+
+        .chatbot-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .chatbot-overlay.show {
+            opacity: 1;
+        }
+
+        .chatbot-container {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.9);
+            width: 80%;
+            max-width: 500px;
+            height: 80%;
+            max-height: 600px;
+            background-color: var(--white);
+            border-radius: 10px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        .chatbot-overlay.show .chatbot-container {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+
+        .chatbot-header {
+            background-color: var(--primary-color);
+            color: var(--white);
+            padding: 15px;
+            text-align: center;
+            font-size: 1.2em;
+        }
+
+        .chatbot-content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chatbot-footer {
+            padding: 10px;
+            text-align: center;
+            background-color: var(--bg-color);
+        }
+
+        .btn {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 10px 20px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.1s ease;
+            font-size: 1em;
+        }
+
+        .btn:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .chat-message {
+            margin-bottom: 15px;
+            padding: 10px 15px;
+            border-radius: 20px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .user-message {
+            align-self: flex-end;
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .bot-message {
+            align-self: flex-start;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+        }
+
+        .error-message {
+            color: var(--error-color);
+            font-style: italic;
+        }
+
+        .typing-indicator {
+            display: inline-block;
+            width: 50px;
+            height: 30px;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: var(--text-color);
+            opacity: 0.4;
+            animation: typing 1s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0% { opacity: 0.4; transform: translateY(0); }
+            50% { opacity: 1; transform: translateY(-5px); }
+            100% { opacity: 0.4; transform: translateY(0); }
+        }
+
+        @media (max-width: 768px) {
+            .chatbot-overlay {
+                background-color: var(--white);
+            }
+            .chatbot-container {
+                width: 100%;
+                height: 100%;
+                max-width: none;
+                max-height: none;
+                border-radius: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="chatbot-trigger">
+        <img src="/api/placeholder/40/40" alt="Chatbot">
+    </div>
+    <div class="chatbot-overlay">
+        <div class="chatbot-container">
+            <div class="chatbot-header">
+                <h2>Department of Technical Education Chatbot</h2>
+            </div>
+            <div class="chatbot-content" id="chatbotContent">
+                <!-- Chat messages will be inserted here -->
+            </div>
+            <div class="chatbot-footer">
+                <button class="btn" id="closeBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const chatbotTrigger = document.querySelector('.chatbot-trigger');
+        const chatbotOverlay = document.querySelector('.chatbot-overlay');
+        const closeBtn = document.getElementById('closeBtn');
+        const chatbotContent = document.getElementById('chatbotContent');
+
+        const categories = [
+            { name: 'Admissions', questions: ['How to apply?', 'Application deadline?', 'Required documents?'] },
+            { name: 'Courses', questions: ['Available programs?', 'Course duration?', 'Eligibility criteria?'] },
+            { name: 'Fees', questions: ['Tuition fees?', 'Payment methods?', 'Scholarships available?'] }
+        ];
+
+        const answers = {
+            'How to apply?': 'You can apply online through our official website or visit our admission office.',
+            'Application deadline?': 'The application deadline for this year is September 30, 2024.',
+            'Required documents?': 'You need to submit your academic transcripts, ID proof, and passport-size photographs.',
+            'Available programs?': 'We offer various engineering and technical programs. Please visit our website for a complete list.',
+            'Course duration?': 'Most of our undergraduate programs are 4 years long, while postgraduate programs are 2 years long.',
+            'Eligibility criteria?': 'Eligibility varies by program. Generally, you need to have completed 10+2 with Science subjects for undergraduate programs.',
+            'Tuition fees?': 'Tuition fees vary by program. Please check our fee structure on the official website.',
+            'Payment methods?': 'We accept online payments, bank transfers, and demand drafts.',
+            'Scholarships available?': 'Yes, we offer merit-based and need-based scholarships. Please contact our scholarship cell for more information.'
+        };
+
+        function createButton(text, onClick) {
+            const button = document.createElement('button');
+            button.textContent = text;
+            button.classList.add('btn');
+            button.addEventListener('click', onClick);
+            return button;
+        }
+
+        function showCategories() {
+            chatbotContent.innerHTML = '';
+            categories.forEach(category => {
+                chatbotContent.appendChild(createButton(category.name, () => showQuestions(category)));
+            });
+        }
+
+        function showQuestions(category) {
+            chatbotContent.innerHTML = '';
+            chatbotContent.appendChild(createButton('Back to Categories', showCategories));
+            category.questions.forEach(question => {
+                chatbotContent.appendChild(createButton(question, () => showAnswer(question)));
+            });
+        }
+
+        function showTypingIndicator() {
+            const typingIndicator = document.createElement('div');
+            typingIndicator.classList.add('chat-message', 'bot-message', 'typing-indicator');
+            typingIndicator.innerHTML = '<span></span><span></span><span></span>';
+            chatbotContent.appendChild(typingIndicator);
+            chatbotContent.scrollTop = chatbotContent.scrollHeight;
+            return typingIndicator;
+        }
+
+        function removeTypingIndicator(indicator) {
+            chatbotContent.removeChild(indicator);
+        }
+
+        async function showAnswer(question) {
+            try {
+                appendMessage(question, 'user-message');
+                const typingIndicator = showTypingIndicator();
+                
+                // Simulate API call delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                removeTypingIndicator(typingIndicator);
+                appendMessage(answers[question], 'bot-message');
+                chatbotContent.appendChild(createButton('Satisfied?', askSatisfaction));
+            } catch (error) {
+                console.error('Error in showAnswer:', error);
+                appendMessage('Sorry, there was an error processing your request. Please try again.', 'error-message');
+            }
+        }
+
+        function askSatisfaction() {
+            appendMessage('Are you satisfied with the answer?', 'bot-message');
+            chatbotContent.appendChild(createButton('Yes', () => {
+                appendMessage('Great! Is there anything else I can help you with?', 'bot-message');
+                showCategories();
+            }));
+            chatbotContent.appendChild(createButton('No', showContactInfo));
+        }
+
+        function showContactInfo() {
+            appendMessage('For further assistance, please contact our support team at support@techedu.rajasthan.gov.in or call +91 1234567890.', 'bot-message');
+            chatbotContent.appendChild(createButton('Back to Categories', showCategories));
+        }
+
+        function appendMessage(message, className) {
+            const messageElement = document.createElement('div');
+            messageElement.textContent = message;
+            messageElement.classList.add('chat-message', className);
+            chatbotContent.appendChild(messageElement);
+            chatbotContent.scrollTop = chatbotContent.scrollHeight;
+        }
+
+        chatbotTrigger.addEventListener('click', () => {
+            chatbotOverlay.style.display = 'block';
+            setTimeout(() => {
+                chatbotOverlay.classList.add('show');
+            }, 10);
+            showCategories();
         });
-      } else {
-        questionsContainer.style.display = "none";
-        document.getElementById("answer-container").style.display = "none";
-      }
-    }
 
-    // Function to display the answer based on selected question
-    function showAnswer() {
-      const question = document.getElementById("questions").value;
-      const answerContainer = document.getElementById("answer-container");
-      const answerElement = document.getElementById("answer");
+        closeBtn.addEventListener('click', () => {
+            chatbotOverlay.classList.remove('show');
+            setTimeout(() => {
+                chatbotOverlay.style.display = 'none';
+            }, 300);
+        });
 
-      // Use switch to give predefined answers based on the selected question
-      switch (question) {
-        case "admission_process":
-          answerElement.textContent = "The admission process includes applying online, entrance exams, and counseling.";
-          break;
-        case "eligibility":
-          answerElement.textContent = "Eligibility criteria include 12th grade completion with science and relevant subjects.";
-          break;
-        case "fee_structure":
-          answerElement.textContent = "The fee structure varies for different courses and ranges between ₹50,000 - ₹1,50,000 annually.";
-          break;
-        case "payment_methods":
-          answerElement.textContent = "You can pay fees via online banking, debit/credit card, or through a bank draft.";
-          break;
-        case "available_scholarships":
-          answerElement.textContent = "Various merit-based and need-based scholarships are available for eligible students.";
-          break;
-        case "eligibility_scholarships":
-          answerElement.textContent = "Eligibility for scholarships depends on academic performance, entrance exam scores, and financial background.";
-          break;
-        default:
-          answerElement.textContent = "";
-      }
-
-      // Display the answer section if a valid question is selected
-      if (question) {
-        answerContainer.style.display = "block";
-      } else {
-        answerContainer.style.display = "none";
-      }
-    }
-  </script>
+        // Error logging
+        window.onerror = function(message, source, lineno, colno, error) {
+            console.error('Global error:', { message, source, lineno, colno, error });
+            appendMessage('An unexpected error occurred. Please try again later.', 'error-message');
+            return true;
+        };
+    </script>
 </body>
 </html>
