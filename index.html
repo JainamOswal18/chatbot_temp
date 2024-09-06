@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basic Chatbot</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+    }
+    .container {
+      max-width: 600px;
+      margin: 50px auto;
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 20px;
+    }
+    label {
+      font-size: 16px;
+      margin-bottom: 10px;
+      display: block;
+    }
+    select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 20px;
+    }
+    #answer-container {
+      background-color: #e1f5fe;
+      padding: 10px;
+      border-radius: 5px;
+    }
+    #answer {
+      font-size: 16px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Admission Chatbot</h1>
+
+    <!-- Category Selection -->
+    <label for="category">Choose a Category:</label>
+    <select id="category" onchange="showQuestions()">
+      <option value="">-- Select a Category --</option>
+      <option value="admission">Admissions</option>
+      <option value="fees">Fee Structure</option>
+      <option value="scholarships">Scholarships</option>
+    </select>
+
+    <!-- Questions Section -->
+    <div id="questions-container" style="display: none;">
+      <label for="questions">Choose a Question:</label>
+      <select id="questions" onchange="showAnswer()">
+        <option value="">-- Select a Question --</option>
+      </select>
+    </div>
+
+    <!-- Answer Section -->
+    <div id="answer-container" style="display: none;">
+      <h3>Answer:</h3>
+      <p id="answer"></p>
+    </div>
+  </div>
+
+  <script>
+    // Function to show questions based on selected category
+    function showQuestions() {
+      const category = document.getElementById("category").value;
+      const questionsContainer = document.getElementById("questions-container");
+      const questionsSelect = document.getElementById("questions");
+
+      // Clear previous questions
+      questionsSelect.innerHTML = '<option value="">-- Select a Question --</option>';
+
+      if (category) {
+        questionsContainer.style.display = "block";
+        let questions = [];
+
+        // Use switch to set relevant questions for each category
+        switch (category) {
+          case "admission":
+            questions = [
+              { value: "admission_process", text: "What is the admission process?" },
+              { value: "eligibility", text: "What are the eligibility criteria?" }
+            ];
+            break;
+          case "fees":
+            questions = [
+              { value: "fee_structure", text: "What is the fee structure?" },
+              { value: "payment_methods", text: "What are the available payment methods?" }
+            ];
+            break;
+          case "scholarships":
+            questions = [
+              { value: "available_scholarships", text: "Are there any scholarships available?" },
+              { value: "eligibility_scholarships", text: "What is the eligibility for scholarships?" }
+            ];
+            break;
+        }
+
+        // Add questions to the dropdown
+        questions.forEach((q) => {
+          const option = document.createElement("option");
+          option.value = q.value;
+          option.textContent = q.text;
+          questionsSelect.appendChild(option);
+        });
+      } else {
+        questionsContainer.style.display = "none";
+        document.getElementById("answer-container").style.display = "none";
+      }
+    }
+
+    // Function to display the answer based on selected question
+    function showAnswer() {
+      const question = document.getElementById("questions").value;
+      const answerContainer = document.getElementById("answer-container");
+      const answerElement = document.getElementById("answer");
+
+      // Use switch to give predefined answers based on the selected question
+      switch (question) {
+        case "admission_process":
+          answerElement.textContent = "The admission process includes applying online, entrance exams, and counseling.";
+          break;
+        case "eligibility":
+          answerElement.textContent = "Eligibility criteria include 12th grade completion with science and relevant subjects.";
+          break;
+        case "fee_structure":
+          answerElement.textContent = "The fee structure varies for different courses and ranges between ₹50,000 - ₹1,50,000 annually.";
+          break;
+        case "payment_methods":
+          answerElement.textContent = "You can pay fees via online banking, debit/credit card, or through a bank draft.";
+          break;
+        case "available_scholarships":
+          answerElement.textContent = "Various merit-based and need-based scholarships are available for eligible students.";
+          break;
+        case "eligibility_scholarships":
+          answerElement.textContent = "Eligibility for scholarships depends on academic performance, entrance exam scores, and financial background.";
+          break;
+        default:
+          answerElement.textContent = "";
+      }
+
+      // Display the answer section if a valid question is selected
+      if (question) {
+        answerContainer.style.display = "block";
+      } else {
+        answerContainer.style.display = "none";
+      }
+    }
+  </script>
+</body>
+</html>
