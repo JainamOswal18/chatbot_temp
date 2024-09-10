@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Department of Technical Education Chatbot</title>
+    <title>BVUCOEP Chatbot</title>
     <style>
         :root {
-            --primary-color: #3498db;
-            --secondary-color: #2980b9;
+            --primary-color: #012a96;
+            --secondary-color: #1647c3;
             --text-color: #333;
-            --bg-color: #f5f5f5;
-            --white: #ffffff;
+            --bg-color: white;
+            --white: #cae8ff;
             --error-color: #e74c3c;
         }
 
@@ -43,8 +43,8 @@
         }
 
         .chatbot-trigger img {
-            width: 40px;
-            height: 40px;
+            width: 80px;
+            height: 80px;
         }
 
         .chatbot-overlay {
@@ -69,9 +69,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%) scale(0.9);
-            width: 80%;
+            width: 100%;
             max-width: 500px;
-            height: 80%;
+            height: 100%;
             max-height: 600px;
             background-color: var(--white);
             border-radius: 10px;
@@ -94,6 +94,44 @@
             padding: 15px;
             text-align: center;
             font-size: 1.2em;
+            position: relative;
+        }
+
+        .chatbot-header img {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 90px;
+            height: 90px;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 5px;
+            line-height: 1;
+        }
+
+        .close-btn:hover {
+            opacity: 0.8;
+        }
+
+        .satisfaction-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .satisfaction-buttons .btn {
+            width: auto;
+            min-width: 80px;
         }
 
         .chatbot-content {
@@ -102,12 +140,7 @@
             padding: 20px;
             display: flex;
             flex-direction: column;
-        }
-
-        .chatbot-footer {
-            padding: 10px;
-            text-align: center;
-            background-color: var(--bg-color);
+            align-items: center;
         }
 
         .btn {
@@ -120,6 +153,8 @@
             cursor: pointer;
             transition: background-color 0.3s ease, transform 0.1s ease;
             font-size: 1em;
+            width: 80%;
+            max-width: 200px;
         }
 
         .btn:hover {
@@ -144,6 +179,7 @@
         }
 
         .user-message {
+            margin-top: 15px;
             align-self: flex-end;
             background-color: var(--primary-color);
             color: var(--white);
@@ -191,23 +227,12 @@
         }
 
         @media (max-width: 768px) {
-            .chatbot-overlay {
-                background-color: var(--white);
-            }
             .chatbot-container {
                 width: 90%;
                 height: 85%;
                 max-width: none;
                 max-height: none;
                 border-radius: 0;
-            }
-            .chatbot-trigger {
-                width: 70px;  /* Increased icon size */
-                height: 70px;
-            }
-            .chatbot-trigger img {
-                width: 50px;  /* Adjust icon image size accordingly */
-                height: 50px;
             }
         }
     </style>
@@ -219,13 +244,13 @@
     <div class="chatbot-overlay">
         <div class="chatbot-container">
             <div class="chatbot-header">
-                <h2>Department of Technical Education Chatbot</h2>
+                <h2>Welcome To BVUCOEP</h2>
+                <h3>How Can I Help You?</h3>
+                <img src="Images/bot_Logo.png" alt="Chatbot">
+                <button class="close-btn" id="closeBtn">&times;</button>
             </div>
             <div class="chatbot-content" id="chatbotContent">
-                <!-- Chat messages will be inserted here -->
-            </div>
-            <div class="chatbot-footer">
-                <button class="btn" id="closeBtn">Close</button>
+                
             </div>
         </div>
     </div>
@@ -239,7 +264,8 @@
         const categories = [
             { name: 'Admissions', questions: ['How to apply?', 'Application deadline?', 'Required documents?'] },
             { name: 'Courses', questions: ['Available programs?', 'Course duration?', 'Eligibility criteria?'] },
-            { name: 'Fees', questions: ['Tuition fees?', 'Payment methods?', 'Scholarships available?'] }
+            { name: 'Fees', questions: ['Tuition fees?', 'Payment methods?', 'Scholarships available?'] },
+            { name: 'Cutoffs', questions: ['Previous year cutoffs?', 'Expected cutoffs?', 'Cutoff calculation method?'] }
         ];
 
         const answers = {
@@ -251,7 +277,10 @@
             'Eligibility criteria?': 'Eligibility varies by program. Generally, you need to have completed 10+2 with Science subjects for undergraduate programs.',
             'Tuition fees?': 'Tuition fees vary by program. Please check our fee structure on the official website.',
             'Payment methods?': 'We accept online payments, bank transfers, and demand drafts.',
-            'Scholarships available?': 'Yes, we offer merit-based and need-based scholarships. Please contact our scholarship cell for more information.'
+            'Scholarships available?': 'Yes, we offer merit-based and need-based scholarships. Please contact our scholarship cell for more information.',
+            'Previous year cutoffs?': 'Cutoffs vary by program. For example, Computer Science had a cutoff of 95% last year.',
+            'Expected cutoffs?': 'Expected cutoffs are subject to change. Please check our website for the most up-to-date information.',
+            'Cutoff calculation method?': 'Cutoffs are calculated based on entrance exam scores and academic performance.'
         };
 
         function createButton(text, onClick) {
@@ -262,19 +291,21 @@
             return button;
         }
 
-        function showCategories() {
+         function showCategories() {
             chatbotContent.innerHTML = '';
             categories.forEach(category => {
                 chatbotContent.appendChild(createButton(category.name, () => showQuestions(category)));
             });
+            chatbotContent.appendChild(createButton('Other', () => showContactInfo(true)));
         }
 
         function showQuestions(category) {
+            currentCategory = category;
             chatbotContent.innerHTML = '';
-            chatbotContent.appendChild(createButton('Back to Categories', showCategories));
             category.questions.forEach(question => {
                 chatbotContent.appendChild(createButton(question, () => showAnswer(question)));
             });
+            chatbotContent.appendChild(createButton('Back to Categories', showCategories));
         }
 
         function showTypingIndicator() {
@@ -295,7 +326,6 @@
                 appendMessage(question, 'user-message');
                 const typingIndicator = showTypingIndicator();
                 
-                // Simulate API call delay
                 await new Promise(resolve => setTimeout(resolve, 1500));
                 
                 removeTypingIndicator(typingIndicator);
@@ -310,27 +340,49 @@
         function askSatisfaction() {
             appendMessage('Is Your Query Resolved?', 'bot-message');
             const satisfiedButton = createButton('Yes', handleSatisfied);
-            const unsatisfiedButton = createButton('No', showContactInfo);
+            const unsatisfiedButton = createButton('No', () => showContactInfo(false));
             
             const buttonContainer = document.createElement('div');
+            buttonContainer.classList.add('satisfaction-buttons');
             buttonContainer.appendChild(satisfiedButton);
             buttonContainer.appendChild(unsatisfiedButton);
             chatbotContent.appendChild(buttonContainer);
         }
 
+        function showCategoryQuestions() {
+            if (currentCategory) {
+                showQuestions(currentCategory);
+            } else {
+                showCategories();
+            }
+        }
+
         function handleSatisfied() {
-            appendMessage('Great! Is there anything else I can help you with?', 'bot-message');
-            showCategories();
+            chatbotContent.innerHTML = '';
+            appendMessage("Thanks for reaching out! Glad I could help.\nFeel free to reach out anytime!", 'bot-message');
+            
+            const knowMoreButton = createButton('Know More', showCategoryQuestions);
+            const backToCategoriesButton = createButton('Back to Categories', showCategories);
+            
+            const buttonContainer = document.createElement('div');
+            buttonContainer.classList.add('satisfaction-buttons');
+            buttonContainer.appendChild(knowMoreButton);
+            buttonContainer.appendChild(backToCategoriesButton);
+            chatbotContent.appendChild(buttonContainer);
         }
 
-        function showContactInfo() {
-            appendMessage("I apologize that the answer didn't meet your expectations. For further assistance, please contact our support team at support@techedu.rajasthan.gov.in or call +91 1234567890.', 'bot-message");
-            chatbotContent.appendChild(createButton('Back to Categories', showCategories));
-        }
-
-
-        function showContactInfo() {
-            appendMessage('For further assistance, please contact our support team at support@techedu.rajasthan.gov.in or call +91 1234567890.', 'bot-message');
+        function showContactInfo(fromOther = false) {
+            chatbotContent.innerHTML = '';
+            
+            if (!fromOther) {
+                appendMessage("Sorry for the inconvenience.", 'bot-message');
+            }
+            
+            appendMessage("For further assistance, please contact our support team at support@bvucoep.edu.in or call +91 1234567890.", 'bot-message');
+            
+            if (fromOther) {
+                appendMessage("Is there anything else I can help you with?", 'bot-message');
+            }
             chatbotContent.appendChild(createButton('Back to Categories', showCategories));
         }
 
@@ -357,7 +409,6 @@
             }, 300);
         });
 
-        // Error logging
         window.onerror = function(message, source, lineno, colno, error) {
             console.error('Global error:', { message, source, lineno, colno, error });
             appendMessage('An unexpected error occurred. Please try again later.', 'error-message');
